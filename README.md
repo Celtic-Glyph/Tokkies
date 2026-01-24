@@ -1,2 +1,0 @@
-# Tokkies
-Movie Bot
