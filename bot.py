@@ -13,7 +13,7 @@ from discord.ext import commands, tasks
 
 # ────────────────────────────────────────────────
 # Load secrets
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 TMDB_API_KEY = os.getenv("TMDB_API_KEY")
 
@@ -161,12 +161,30 @@ def _set_tz_name(gid: str, tz: str):
 # ========== TMDB Helpers ==========
 
 def search_movie(query):
+    if not TMDB_API_KEY:
+        return {"__error__": "TMDB_API_KEY is missing (not loaded from .env)"}
+
     url = "https://api.themoviedb.org/3/search/movie"
     params = {"api_key": TMDB_API_KEY, "query": query}
-    r = requests.get(url, params=params).json()
-    if r.get("results"):
-        return r["results"][0]
+
+    try:
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+    except Exception as e:
+        return {"__error__": f"TMDB request failed: {e}"}
+
+    # TMDB returns these fields when something is wrong (e.g., invalid API key)
+    if isinstance(data, dict) and data.get("success") is False:
+        return {"__error__": data.get("status_message", "TMDB error")}
+
+    if isinstance(data, dict) and data.get("status_code") and not data.get("results"):
+        return {"__error__": data.get("status_message", "TMDB error")}
+
+    if data.get("results"):
+        return data["results"][0]
+
     return None
+
 
 # ========== Movie Night helpers ==========
 
@@ -440,6 +458,15 @@ async def poster(ctx, *, query: str):
 
     # Fetch poster from TMDB
     movie = search_movie(title)
+
+    if isinstance(movie, dict) and movie.get("__error__"):
+        embed = discord.Embed(
+            title="TMDB Error ⚠️",
+            description=movie["__error__"],
+            color=ERROR_COLOR
+        )
+        return await ctx.send(embed=embed, delete_after=AUTO_DELETE_AFTER)
+
     if not movie or not movie.get("poster_path"):
         embed = discord.Embed(title=f"No Poster Found for **{title}**", color=ERROR_COLOR)
         return await ctx.send(embed=embed, delete_after=AUTO_DELETE_AFTER)
