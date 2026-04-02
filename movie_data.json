@@ -1,20 +1,18 @@
 {
   "1353457774935150833": {
-    "movie_list": [
-      "Godzilla",
-      "Vortex",
-      "Moana",
-      "harry potter deathly hallows"
-    ],
+    "movie_list": [],
     "watched_list": [],
     "movie_night": null,
-    "movie_night_channel_id": 1354476364584980600,
-    "timezone": "Europe/Brussels"
+    "movie_night_channel_id": null,
+    "timezone": "UTC",
+    "auto_delete_enabled": true,
+    "prefix": ".",
+    "locked": false,
+    "blocked_users": []
   },
   "964897939048783892": {
     "movie_list": [
       "The Circle",
-      "Mickey 17",
       "Disney Togo",
       "Drop",
       "The Conjuring Last Rites"
@@ -22,6 +20,10 @@
     "watched_list": [],
     "movie_night": null,
     "movie_night_channel_id": null,
-    "timezone": "UTC"
+    "timezone": "UTC",
+    "auto_delete_enabled": false,
+    "prefix": ".",
+    "locked": false,
+    "blocked_users": []
   }
 }
